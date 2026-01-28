@@ -62,7 +62,7 @@ export async function GET() {
         { items: [] },
         {
           headers: {
-            "Cache-Control": `public, max-age=${CACHE_MAX_AGE}, s-maxage=${CACHE_S_MAX_AGE}`,
+            "Cache-Control": `private, max-age=${CACHE_MAX_AGE}`,
           },
         },
       );
@@ -94,7 +94,7 @@ export async function GET() {
 
     return Response.json(playlistData, {
       headers: {
-        "Cache-Control": `public, max-age=${CACHE_MAX_AGE}, s-maxage=${CACHE_S_MAX_AGE}`,
+        "Cache-Control": `private, max-age=${CACHE_MAX_AGE}`,
       },
     });
   } catch (error) {
