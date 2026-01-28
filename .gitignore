@@ -10,6 +10,12 @@
 !.yarn/releases
 !.yarn/versions
 
+# Python virtual environment (IMPORTANT: venv is large, don't commit)
+python_emotion_server/venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
 # testing
 /coverage
 
