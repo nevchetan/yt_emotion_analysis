@@ -21,7 +21,7 @@ import { analyzeEmotionsBatch } from "@/lib/hf";
 const YOUTUBE_API_BASE = "https://youtube.googleapis.com/youtube/v3";
 const PAGE_SIZE = 20; // Comments to analyze per request
 const CACHE_MAX_AGE = 300; // 5 minutes client cache
-const CACHE_S_MAX_AGE = 600; // 10 minutes CDN cache
+const CONCURRENCY = 3; // Parallel emotion analysis requests (increased from 2)
 
 /**
  * Helper: Extract comment text from YouTube API response
@@ -68,6 +68,21 @@ export async function GET(request) {
   }
 
   try {
+    // Fetch video details (title, etc.) for metadata
+    const videoUrl = new URL(`${YOUTUBE_API_BASE}/videos`);
+    videoUrl.searchParams.set("part", "snippet");
+    videoUrl.searchParams.set("id", videoId);
+
+    const videoResponse = await fetch(videoUrl.toString(), {
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+    });
+
+    let videoTitle = "";
+    if (videoResponse.ok) {
+      const videoData = await videoResponse.json();
+      videoTitle = videoData.items?.[0]?.snippet?.title || "";
+    }
+
     // Fetch comments from YouTube API
     const commentsUrl = new URL(`${YOUTUBE_API_BASE}/commentThreads`);
     commentsUrl.searchParams.set("part", "snippet");
@@ -115,6 +130,7 @@ export async function GET(request) {
           total: 0,
           analyzed: 0,
           hasMore: false,
+          videoTitle: videoTitle,
         }),
         {
           status: 200,
@@ -126,12 +142,12 @@ export async function GET(request) {
       );
     }
 
-    // Analyze emotions
+    // Analyze emotions with optimized concurrency
     const commentTexts = paginatedComments.map((c) => c.text);
     let emotionResults = [];
 
     try {
-      emotionResults = await analyzeEmotionsBatch(commentTexts, 2);
+      emotionResults = await analyzeEmotionsBatch(commentTexts, CONCURRENCY);
     } catch (error) {
       return new Response(
         JSON.stringify({
@@ -162,6 +178,7 @@ export async function GET(request) {
         total: allComments.length,
         analyzed: paginatedComments.length,
         hasMore: allComments.length > PAGE_SIZE,
+        videoTitle: videoTitle,
       }),
       {
         status: 200,

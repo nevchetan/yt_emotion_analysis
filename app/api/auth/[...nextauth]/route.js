@@ -34,11 +34,16 @@ export const authOptions = {
      * JWT Callback: Persist OAuth tokens
      * Stores access and refresh tokens in JWT for server-side API calls
      */
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       if (account) {
+        console.log("🔐 JWT Callback - New login detected");
+        console.log("👤 User email:", user?.email);
+        console.log("🆔 Account sub:", account.providerAccountId);
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expiresAt = account.expires_at * 1000;
+        token.email = user?.email;
+        token.sub = user?.id;
       }
       return token;
     },
@@ -48,9 +53,14 @@ export const authOptions = {
      * Makes tokens available to API routes via getServerSession()
      */
     async session({ session, token }) {
+      console.log("📋 Session Callback - Creating session");
+      console.log("👤 Session email:", session?.user?.email);
+      console.log("🔑 Token has accessToken:", !!token.accessToken);
+      console.log("🆔 Token email:", token.email);
       session.accessToken = token.accessToken;
       session.refreshToken = token.refreshToken;
       session.expiresAt = token.expiresAt;
+      session.userId = token.sub;
       return session;
     },
   },

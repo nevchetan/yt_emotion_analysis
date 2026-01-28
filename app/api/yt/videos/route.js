@@ -22,7 +22,17 @@ export async function GET() {
   try {
     // Authenticate user
     const session = await getServerSession(authOptions);
+    console.log("🔐 Session exists:", !!session);
+    console.log("🔑 Access token exists:", !!session?.accessToken);
+    console.log("👤 Session user email:", session?.user?.email);
+    console.log("🆔 Session userId:", session?.userId);
+    console.log(
+      "🎫 Access token (first 20 chars):",
+      session?.accessToken?.substring(0, 20) + "...",
+    );
+
     if (!session?.accessToken) {
+      console.error("❌ No access token in session");
       return Response.json(
         {
           error: "Unauthorized",
@@ -37,27 +47,38 @@ export async function GET() {
     channelUrl.searchParams.set("part", "contentDetails");
     channelUrl.searchParams.set("mine", "true");
 
+    console.log("📡 Fetching channel from YouTube API...");
     const channelResponse = await fetch(channelUrl.toString(), {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
+    console.log("📺 Channel API status:", channelResponse.status);
+
     if (!channelResponse.ok) {
+      const errorText = await channelResponse.text();
+      console.error("❌ YouTube API Error:", errorText);
       return Response.json(
         {
           error: "Failed to fetch channel",
           message: `YouTube API returned ${channelResponse.status}`,
+          details: errorText,
         },
         { status: channelResponse.status },
       );
     }
 
     const channelData = await channelResponse.json();
+    console.log("📊 Channel data:", JSON.stringify(channelData, null, 2));
+    console.log("🎯 Channel ID:", channelData?.items?.[0]?.id);
     const uploadsPlaylistId =
       channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
 
+    console.log("📂 Uploads playlist ID:", uploadsPlaylistId);
+
     if (!uploadsPlaylistId) {
+      console.warn("⚠️ No uploads playlist found - returning empty array");
       return Response.json(
         { items: [] },
         {
@@ -74,23 +95,30 @@ export async function GET() {
     playlistUrl.searchParams.set("playlistId", uploadsPlaylistId);
     playlistUrl.searchParams.set("maxResults", "20");
 
+    console.log("📡 Fetching videos from playlist...");
     const playlistResponse = await fetch(playlistUrl.toString(), {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
+    console.log("🎬 Playlist API status:", playlistResponse.status);
+
     if (!playlistResponse.ok) {
+      const errorText = await playlistResponse.text();
+      console.error("❌ Playlist API Error:", errorText);
       return Response.json(
         {
           error: "Failed to fetch videos",
           message: `YouTube API returned ${playlistResponse.status}`,
+          details: errorText,
         },
         { status: playlistResponse.status },
       );
     }
 
     const playlistData = await playlistResponse.json();
+    console.log("✅ Videos found:", playlistData?.items?.length || 0);
 
     return Response.json(playlistData, {
       headers: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signIn, signOut } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import VideoCard from "../components/VideoCard";
 import {
@@ -28,23 +28,87 @@ export default function Home() {
   const [selectedVideo, setSelectedVideo] = useState(null); // New state for selected video
   const [analysisLoading, setAnalysisLoading] = useState(false); // New state for analysis loading
   const [emotionResults, setEmotionResults] = useState(null); // New state for emotion results
+  const currentUserRef = useRef(null); // Track current logged-in user with ref (doesn't trigger re-renders)
 
   useEffect(() => {
-    if (!session?.accessToken) return;
+    console.log(
+      "🔍 Effect triggered - status:",
+      status,
+      "hasSession:",
+      !!session,
+      "hasToken:",
+      !!session?.accessToken,
+    );
+
+    // Wait for session to fully load before fetching
+    if (status === "loading") {
+      console.log("⏳ Status is loading, waiting...");
+      return;
+    }
+
+    if (!session?.accessToken) {
+      console.log("🚫 No session or accessToken, clearing state");
+      // User logged out - clear all state
+      setVideos([]);
+      setSelectedVideo(null);
+      setEmotionResults(null);
+      currentUserRef.current = null;
+      return;
+    }
+
+    // Check if user changed (different email)
+    const userEmail = session?.user?.email;
+    console.log("👤 Current logged in user:", userEmail);
+    console.log("📝 Previous user was:", currentUserRef.current);
+
+    if (currentUserRef.current && currentUserRef.current !== userEmail) {
+      console.log(
+        "🔄 User changed from",
+        currentUserRef.current,
+        "to",
+        userEmail,
+      );
+      // Clear all state when switching users
+      setVideos([]);
+      setSelectedVideo(null);
+      setEmotionResults(null);
+    }
+    currentUserRef.current = userEmail;
+
+    console.log("🚀 Starting to fetch videos...");
     setLoading(true);
     async function fetchVideos() {
       try {
-        const res = await axios.get("/api/yt/videos");
+        console.log("🔄 Fetching videos from /api/yt/videos...");
+        // Add cache busting and no-cache headers
+        const res = await axios.get("/api/yt/videos", {
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+          // Add timestamp to prevent caching
+          params: {
+            _t: Date.now(),
+          },
+        });
+        console.log("📦 Response:", res.data);
+        console.log("🎬 Videos count:", res.data?.items?.length || 0);
         setVideos(res.data.items || []);
+        // Clear selected video when switching accounts/refreshing
+        setSelectedVideo(null);
+        setEmotionResults(null);
         setError(null);
       } catch (err) {
-        setError(err.message || "Unknown error");
+        console.error("❌ Error fetching videos:", err);
+        console.error("📝 Error response:", err.response?.data);
+        setError(err.response?.data?.message || err.message || "Unknown error");
       } finally {
         setLoading(false);
       }
     }
     fetchVideos();
-  }, [session]);
+  }, [session, status]);
 
   // Dummy function for analysis - replace with actual API call
   const analyzeVideo = async (videoId) => {

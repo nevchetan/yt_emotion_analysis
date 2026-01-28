@@ -33,21 +33,17 @@ export default function DashboardClient({ videoId }) {
     }
 
     async function load() {
-      // Fetch video title first
       try {
-        const videosRes = await axios.get(`/api/yt/videos`);
-        const videos = videosRes.data?.items || [];
-        const currentVideo = videos.find(
-          (v) => v.snippet?.resourceId?.videoId === videoId,
-        );
-        if (currentVideo) {
-          setVideoTitle(currentVideo.snippet?.title || "");
-        }
-      } catch (err) {
-        console.error("Error fetching video title:", err);
-      }
-      try {
-        const res = await axios.get(`/api/yt/comments?videoId=${videoId}`);
+        const res = await axios.get(`/api/yt/comments?videoId=${videoId}`, {
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+          params: {
+            _t: Date.now(),
+          },
+        });
         let data = res.data;
 
         // Handle case where data might be double-stringified
@@ -59,6 +55,11 @@ export default function DashboardClient({ videoId }) {
           throw new Error(
             data.error + (data.details ? `: ${data.details}` : ""),
           );
+        }
+
+        // Extract video title from response metadata
+        if (data?.videoTitle) {
+          setVideoTitle(data.videoTitle);
         }
 
         // Handle new paginated response format

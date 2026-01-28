@@ -22,7 +22,16 @@ export default function AnalysisPageClient({ videoId }) {
 
     async function load() {
       try {
-        const res = await axios.get(`/api/yt/comments?videoId=${videoId}`);
+        const res = await axios.get(`/api/yt/comments?videoId=${videoId}`, {
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+          params: {
+            _t: Date.now(),
+          },
+        });
         const data = res.data;
 
         if (data?.error) {
