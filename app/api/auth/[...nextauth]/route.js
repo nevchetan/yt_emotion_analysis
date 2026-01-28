@@ -25,6 +25,7 @@ export const authOptions = {
           access_type: "offline", // Get refresh token for long-lived access
           prompt: "consent",
           include_granted_scopes: "true",
+          redirect_uri: process.env.NEXTAUTH_URL + "/api/auth/callback/google",
         },
       },
     }),
