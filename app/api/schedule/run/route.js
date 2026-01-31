@@ -142,10 +142,11 @@ async function handleScheduleRun(request) {
   let sent = 0;
 
   for (const id of ids) {
-    const raw = await redis.get(`schedule:${id}`);
-    if (!raw) continue;
+    const data = await redis.get(`schedule:${id}`);
+    if (!data) continue;
 
-    const schedule = JSON.parse(raw);
+    // Upstash Redis already parses JSON automatically
+    const schedule = typeof data === "string" ? JSON.parse(data) : data;
     if (!schedule?.active) continue;
 
     processed += 1;
