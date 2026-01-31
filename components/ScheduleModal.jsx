@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { X, Calendar, Clock, Mail } from "lucide-react";
+import { X, Calendar, Clock, Mail, Trash2 } from "lucide-react";
 
 export default function ScheduleModal({
   isOpen,
@@ -84,6 +84,24 @@ export default function ScheduleModal({
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (scheduleId) => {
+    if (!confirm("Are you sure you want to delete this schedule?")) return;
+
+    try {
+      const response = await fetch("/api/schedule/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scheduleId }),
+      });
+
+      if (!response.ok) throw new Error("Failed to delete schedule");
+
+      await loadSchedules();
+    } catch (err) {
+      alert("Error deleting schedule: " + err.message);
     }
   };
 
@@ -194,20 +212,31 @@ export default function ScheduleModal({
                     key={item.id}
                     className="rounded-md border border-gray-200 bg-white p-3"
                   >
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {item.videoTitle || "Unknown Video"}
-                    </p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      {item.frequency} at {item.time}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Last sent: {item.lastSentAt || "Not sent yet"}
-                    </p>
-                    {item.lastError && (
-                      <p className="text-xs text-red-600 mt-1">
-                        Error: {item.lastError}
-                      </p>
-                    )}
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {item.videoTitle || "Unknown Video"}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {item.frequency} at {item.time}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Last sent: {item.lastSentAt || "Not sent yet"}
+                        </p>
+                        {item.lastError && (
+                          <p className="text-xs text-red-600 mt-1">
+                            Error: {item.lastError}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded transition"
+                        title="Delete schedule"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
