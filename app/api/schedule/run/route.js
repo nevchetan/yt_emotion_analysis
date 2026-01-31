@@ -48,19 +48,19 @@ function shouldSendNow(schedule) {
 
   if (!scheduleTime) return false;
 
-  const nowParts = getTimeParts(now, schedule.timeZone);
+  // Use UTC if timezone is not set
+  const timeZone = schedule.timeZone || undefined;
+  const nowParts = getTimeParts(now, timeZone);
   const nowTotal = nowParts.hour * 60 + nowParts.minute;
   const scheduleTotal = scheduleTime.hour * 60 + scheduleTime.minute;
 
-  if (Math.abs(nowTotal - scheduleTotal) > 1) {
+  // Allow 5-minute window for GitHub Actions scheduling
+  if (Math.abs(nowTotal - scheduleTotal) > 5) {
     return false;
   }
 
   if (schedule.lastSentAt) {
-    const lastSentParts = getTimeParts(
-      new Date(schedule.lastSentAt),
-      schedule.timeZone,
-    );
+    const lastSentParts = getTimeParts(new Date(schedule.lastSentAt), timeZone);
     if (lastSentParts.dateKey === nowParts.dateKey) {
       return false;
     }
@@ -141,19 +141,27 @@ export async function GET(request) {
     if (!schedule?.active) continue;
 
     processed += 1;
+    console.log(
+      `Checking schedule ${id}: time=${schedule.time}, freq=${schedule.frequency}`,
+    );
 
     if (shouldSendNow(schedule)) {
+      console.log(`✅ Sending email for schedule ${id}`);
       try {
         await sendEmail(schedule);
         schedule.lastSentAt = new Date().toISOString();
         schedule.lastError = null;
         await redis.set(`schedule:${id}`, JSON.stringify(schedule));
         sent += 1;
+        console.log(`Email sent for ${id}`);
       } catch (error) {
+        console.error(`Error sending email for ${id}:`, error.message);
         schedule.lastError = error.message;
         schedule.lastAttemptAt = new Date().toISOString();
         await redis.set(`schedule:${id}`, JSON.stringify(schedule));
       }
+    } else {
+      console.log(`⏭️ Skipping schedule ${id}`);
     }
   }
 
