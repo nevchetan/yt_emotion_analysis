@@ -99,6 +99,14 @@ async function sendEmail(schedule) {
 }
 
 export async function GET(request) {
+  return handleScheduleRun(request);
+}
+
+export async function POST(request) {
+  return handleScheduleRun(request);
+}
+
+async function handleScheduleRun(request) {
   const redis = getRedis();
   if (!redis) {
     return NextResponse.json(
