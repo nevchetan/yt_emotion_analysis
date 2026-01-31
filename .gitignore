@@ -39,6 +39,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# user data - email schedules (contains sensitive user information)
+/data/schedules.json
+
 # vercel
 .vercel
 

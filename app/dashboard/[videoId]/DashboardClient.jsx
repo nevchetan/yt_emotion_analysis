@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import EmotionPie from "@/components/EmotionPie";
 import EmotionBar from "@/components/EmotionBar";
+import ScheduleModal from "@/components/ScheduleModal";
 import {
   ArrowLeft,
   BarChart3,
@@ -12,6 +13,7 @@ import {
   TrendingUp,
   Download,
   MessageSquare,
+  Calendar,
 } from "lucide-react";
 
 export default function DashboardClient({ videoId }) {
@@ -24,6 +26,7 @@ export default function DashboardClient({ videoId }) {
   const [analyzedCount, setAnalyzedCount] = useState(0);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [videoTitle, setVideoTitle] = useState("");
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
   useEffect(() => {
     if (!videoId) {
@@ -400,8 +403,23 @@ export default function DashboardClient({ videoId }) {
 
   return (
     <main className="p-6 max-w-7xl mx-auto">
-      {/* Download Button - Top Priority */}
-      <div className="mb-6 flex justify-end">
+      {/* Schedule Modal */}
+      <ScheduleModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        videoId={videoId}
+        videoTitle={videoTitle}
+      />
+
+      {/* Action Buttons - Top Priority */}
+      <div className="mb-6 flex justify-end gap-4 flex-wrap">
+        <button
+          onClick={() => setIsScheduleModalOpen(true)}
+          className="flex items-center gap-3 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition shadow-xl text-lg"
+        >
+          <Calendar size={24} />
+          Set Schedule
+        </button>
         <button
           onClick={downloadPDF}
           disabled={downloadingPdf}
