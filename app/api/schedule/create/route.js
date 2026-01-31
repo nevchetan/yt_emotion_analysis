@@ -93,8 +93,12 @@ export async function POST(request) {
       const existingId = await redis.hget(scheduleKeyHash, scheduleKey);
 
       if (existingId) {
-        const existingRaw = await redis.get(`schedule:${existingId}`);
-        const existing = existingRaw ? JSON.parse(existingRaw) : {};
+        const existingData = await redis.get(`schedule:${existingId}`);
+        // Upstash Redis already parses JSON automatically
+        const existing =
+          typeof existingData === "string"
+            ? JSON.parse(existingData)
+            : existingData || {};
         const updated = {
           ...existing,
           ...schedule,
@@ -235,9 +239,10 @@ export async function GET(request) {
 
       const schedules = [];
       for (const id of ids) {
-        const raw = await redis.get(`schedule:${id}`);
-        if (!raw) continue;
-        const parsed = JSON.parse(raw);
+        const data = await redis.get(`schedule:${id}`);
+        if (!data) continue;
+        // Upstash Redis already parses JSON automatically
+        const parsed = typeof data === "string" ? JSON.parse(data) : data;
         if (parsed?.active) {
           schedules.push(parsed);
         }
