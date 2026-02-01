@@ -28,6 +28,10 @@ __pycache__/
 
 # misc
 .DS_Store
+
+# Local schedules with refresh tokens (contains secrets, don't commit)
+data/schedules/
+data/schedules.json
 *.pem
 
 # debug
