@@ -1,5 +1,9 @@
 name: Run Scheduled Emails
 
+# This workflow triggers every 5 minutes to check for scheduled email reports
+# GitHub automatically disables scheduled workflows after 60 days of inactivity
+# If schedules stop running, push a new commit to re-enable this workflow
+
 on:
   schedule:
     - cron: "*/5 * * * *"
