@@ -1,12 +1,11 @@
 name: Run Scheduled Emails
 
-# This workflow triggers every 5 minutes to check for scheduled email reports
-# GitHub automatically disables scheduled workflows after 60 days of inactivity
-# If schedules stop running, push a new commit to re-enable this workflow
+# DEPRECATED: Switched to Vercel Cron (free tier) instead
+# GitHub Actions disabled scheduled workflows after 60 days of inactivity
+# Vercel Cron runs the scheduler at configured times without this limitation
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
+  # Disabled - using Vercel Cron instead
   workflow_dispatch:
 
 jobs:

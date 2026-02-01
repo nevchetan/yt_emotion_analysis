@@ -1,0 +1,5 @@
+# This directory stores email schedules
+
+# schedules.json will be automatically created when users create their first schedule
+
+# DO NOT commit schedules.json to version control (contains user emails)

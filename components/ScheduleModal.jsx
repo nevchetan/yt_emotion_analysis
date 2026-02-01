@@ -11,7 +11,6 @@ export default function ScheduleModal({
 }) {
   const [email, setEmail] = useState("");
   const [frequency, setFrequency] = useState("daily");
-  const [time, setTime] = useState("09:00");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -47,7 +46,8 @@ export default function ScheduleModal({
 
     try {
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const timezoneOffsetMinutes = new Date().getTimezoneOffset();
+      // getTimezoneOffset() returns negative for timezones east of UTC, so negate it
+      const timezoneOffsetMinutes = -new Date().getTimezoneOffset();
 
       const response = await fetch("/api/schedule/create", {
         method: "POST",
@@ -59,7 +59,6 @@ export default function ScheduleModal({
           videoTitle,
           email,
           frequency,
-          time,
           timeZone,
           timezoneOffsetMinutes,
         }),
@@ -78,7 +77,6 @@ export default function ScheduleModal({
         setSuccess(false);
         setEmail("");
         setFrequency("daily");
-        setTime("09:00");
       }, 2000);
     } catch (err) {
       setError(err.message);
@@ -165,25 +163,16 @@ export default function ScheduleModal({
               onChange={(e) => setFrequency(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
             >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly (Every Monday)</option>
-              <option value="monthly">Monthly (1st of month)</option>
+              <option value="daily">Daily (sent at midnight UTC)</option>
+              <option value="weekly">Weekly (Sundays at midnight UTC)</option>
+              <option value="monthly">
+                Monthly (1st of month at midnight UTC)
+              </option>
             </select>
-          </div>
-
-          {/* Time Picker */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-              <Clock size={16} />
-              Time (24-hour format)
-            </label>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
-            />
+            <p className="text-xs text-gray-500 mt-2">
+              Reports are sent automatically at the scheduled frequency. Free
+              tier doesn't support custom times.
+            </p>
           </div>
 
           {/* Existing Schedules */}

@@ -44,35 +44,33 @@ function parseScheduleTime(time) {
 
 function shouldSendNow(schedule) {
   const now = new Date();
-  const scheduleTime = parseScheduleTime(schedule.time);
 
-  if (!scheduleTime) return false;
-
-  // Use UTC if timezone is not set
-  const timeZone = schedule.timeZone || undefined;
-  const nowParts = getTimeParts(now, timeZone);
-  const nowTotal = nowParts.hour * 60 + nowParts.minute;
-  const scheduleTotal = scheduleTime.hour * 60 + scheduleTime.minute;
-
-  // Allow 5-minute window for GitHub Actions scheduling
-  if (Math.abs(nowTotal - scheduleTotal) > 5) {
-    return false;
-  }
+  // Vercel Cron free tier doesn't support specific times
+  // Only check if schedule matches the frequency pattern
+  // Cron runs at: daily (0 0 * * *), weekly (0 0 * * 0), monthly (0 0 1 * *)
 
   if (schedule.lastSentAt) {
-    const lastSentParts = getTimeParts(new Date(schedule.lastSentAt), timeZone);
-    if (lastSentParts.dateKey === nowParts.dateKey) {
+    const lastSentDate = new Date(schedule.lastSentAt);
+    const nowDate = new Date(now.toISOString().split("T")[0]);
+    const lastSentDateOnly = new Date(lastSentDate.toISOString().split("T")[0]);
+
+    // Don't send twice on same day
+    if (nowDate.getTime() === lastSentDateOnly.getTime()) {
       return false;
     }
   }
 
+  // Use UTC for date/day calculations
+  const dayOfMonth = now.getUTCDate();
+  const dayOfWeek = now.getUTCDay(); // 0 = Sunday
+
   switch (schedule.frequency) {
     case "daily":
-      return true;
+      return true; // Send every day
     case "weekly":
-      return nowParts.weekday === "Mon";
+      return dayOfWeek === 0; // Send on Sundays (when Vercel cron runs)
     case "monthly":
-      return nowParts.day === 1;
+      return dayOfMonth === 1; // Send on 1st of month (when Vercel cron runs)
     default:
       return false;
   }
@@ -119,7 +117,11 @@ async function handleScheduleRun(request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (!cronHeader && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  // Require either Vercel CRON header OR valid Bearer token (not both optional)
+  const isVercelCron = !!cronHeader;
+  const hasValidAuth = cronSecret && authHeader === `Bearer ${cronSecret}`;
+
+  if (!isVercelCron && !hasValidAuth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

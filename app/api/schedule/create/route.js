@@ -24,13 +24,12 @@ export async function POST(request) {
       videoTitle,
       email,
       frequency,
-      time,
       timeZone,
       timezoneOffsetMinutes,
     } = body;
 
     // Validate input
-    if (!videoId || !email || !frequency || !time) {
+    if (!videoId || !email || !frequency) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -42,15 +41,6 @@ export async function POST(request) {
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: "Invalid email format" },
-        { status: 400 },
-      );
-    }
-
-    // Time validation (HH:MM format)
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (!timeRegex.test(time)) {
-      return NextResponse.json(
-        { error: "Invalid time format. Use HH:MM (24-hour)" },
         { status: 400 },
       );
     }
@@ -74,7 +64,6 @@ export async function POST(request) {
       videoTitle: videoTitle || "Unknown Video",
       recipientEmail: email,
       frequency, // daily, weekly, monthly
-      time, // HH:MM format
       refreshToken: session.refreshToken,
       timeZone: timeZone || null,
       timezoneOffsetMinutes:
@@ -85,7 +74,7 @@ export async function POST(request) {
       active: true,
     };
 
-    const scheduleKey = `${videoId}|${email}|${frequency}|${time}`;
+    const scheduleKey = `${videoId}|${email}|${frequency}`;
     const redis = getRedis();
 
     if (redis) {
