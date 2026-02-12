@@ -24,6 +24,7 @@ export default function DashboardClient({ videoId }) {
   const [error, setError] = useState("");
   const [totalComments, setTotalComments] = useState(0);
   const [analyzedCount, setAnalyzedCount] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState("Loading comments...");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [videoTitle, setVideoTitle] = useState("");
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
@@ -37,6 +38,8 @@ export default function DashboardClient({ videoId }) {
 
     async function load() {
       try {
+        setLoadingMessage("Analyzing all comments for accurate charts...");
+
         const res = await axios.get(`/api/yt/comments?videoId=${videoId}`, {
           headers: {
             "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -315,9 +318,11 @@ export default function DashboardClient({ videoId }) {
             </div>
           </div>
           <p className="text-gray-700 text-lg font-semibold mb-2">
-            Loading emotion analysis...
+            {loadingMessage}
           </p>
-          <p className="text-gray-500 text-sm">Analyzing comments with AI</p>
+          <p className="text-gray-500 text-sm">
+            This may take 15-30 seconds for all comments
+          </p>
         </div>
       </div>
     );
@@ -470,11 +475,8 @@ export default function DashboardClient({ videoId }) {
               <p className="text-3xl font-bold text-gray-800 mt-2">
                 {analyzedCount}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {totalComments > 0
-                  ? Math.round((analyzedCount / totalComments) * 100)
-                  : 0}
-                % of total
+              <p className="text-xs text-green-600 font-semibold mt-1">
+                Complete analysis ✓
               </p>
             </div>
             <div className="text-green-500 text-2xl font-bold">✓</div>

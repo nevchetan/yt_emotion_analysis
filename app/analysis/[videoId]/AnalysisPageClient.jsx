@@ -4,11 +4,17 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BarChart3, TrendingUp, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  TrendingUp,
+  MessageSquare,
+} from "lucide-react";
 
 export default function AnalysisPageClient({ videoId }) {
   const router = useRouter();
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState([]); // All loaded comments
+  const [displayCount, setDisplayCount] = useState(20); // How many to display
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedEmotion, setSelectedEmotion] = useState(null);
@@ -41,7 +47,7 @@ export default function AnalysisPageClient({ videoId }) {
         }
 
         if (data?.comments && Array.isArray(data.comments)) {
-          setComments(data.comments);
+          setComments(data.comments); // Store ALL comments
           setError("");
         } else if (Array.isArray(data)) {
           setComments(data);
@@ -86,6 +92,11 @@ export default function AnalysisPageClient({ videoId }) {
 
     load();
   }, [videoId]);
+
+  // Load more (client-side pagination - just show more from already-loaded comments)
+  function loadMore() {
+    setDisplayCount(displayCount + 20);
+  }
 
   function getEmotionCounts(data) {
     const counts = {};
@@ -190,11 +201,11 @@ export default function AnalysisPageClient({ videoId }) {
     );
   }
 
-  const emotionCounts = getEmotionCounts(comments);
-  const totalComments = comments.length;
+  const emotionCounts = getEmotionCounts(comments); // Count ALL comments
   const filteredComments = selectedEmotion
     ? comments.filter((c) => (c.emotion || "neutral") === selectedEmotion)
-    : comments;
+    : comments.slice(0, displayCount); // Show only displayCount when not filtered
+  const hasMore = !selectedEmotion && displayCount < comments.length;
 
   return (
     <main className="p-6 max-w-6xl mx-auto">
@@ -237,7 +248,7 @@ export default function AnalysisPageClient({ videoId }) {
                 : "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200"
             }`}
           >
-            <div className="text-2xl font-bold">{totalComments}</div>
+            <div className="text-2xl font-bold">{comments.length}</div>
             <div className="text-sm font-medium">All</div>
             <div className="text-xs opacity-75">100%</div>
           </button>
@@ -258,8 +269,8 @@ export default function AnalysisPageClient({ videoId }) {
                 {getEmotionLabel(emotion)}
               </div>
               <div className="text-xs opacity-75">
-                {totalComments > 0
-                  ? Math.round((count / totalComments) * 100)
+                {comments.length > 0
+                  ? Math.round((count / comments.length) * 100)
                   : 0}
                 %
               </div>
@@ -272,12 +283,18 @@ export default function AnalysisPageClient({ videoId }) {
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">
           Comments ({filteredComments.length})
+          {!selectedEmotion && displayCount < comments.length && (
+            <span className="ml-2 text-sm font-normal text-gray-600">
+              - Showing {displayCount} of {comments.length}
+            </span>
+          )}
           {selectedEmotion && (
             <span className="ml-2 text-sm font-normal text-gray-600">
               - Filtered by {getEmotionLabel(selectedEmotion)}
             </span>
           )}
         </h2>
+
         <div className="space-y-4">
           {filteredComments.length > 0 ? (
             filteredComments.map((c, i) => (
@@ -321,6 +338,18 @@ export default function AnalysisPageClient({ videoId }) {
             </p>
           )}
         </div>
+
+        {/* Load More Button */}
+        {!selectedEmotion && hasMore && (
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={loadMore}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition flex items-center gap-2 shadow-md"
+            >
+              Load More ({comments.length - displayCount} remaining)
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );
