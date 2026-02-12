@@ -19,9 +19,9 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import { analyzeEmotionsBatch } from "@/lib/hf";
 
 const YOUTUBE_API_BASE = "https://youtube.googleapis.com/youtube/v3";
-const PAGE_SIZE = 20; // Comments to analyze per request
+const PAGE_SIZE = 20; // Comments to analyze per request (keep at 20 for stability)
 const CACHE_MAX_AGE = 300; // 5 minutes client cache
-const CONCURRENCY = 3; // Parallel emotion analysis requests (increased from 2)
+const CONCURRENCY = 4; // Parallel emotion analysis requests (safely increased from 3 for ~25% faster, risk-controlled)
 
 /**
  * Helper: Extract comment text from YouTube API response
@@ -146,6 +146,9 @@ export async function GET(request) {
     const commentTexts = paginatedComments.map((c) => c.text);
     let emotionResults = [];
 
+    // Performance monitoring - track analysis time
+    const analysisStartTime = Date.now();
+
     try {
       emotionResults = await analyzeEmotionsBatch(commentTexts, CONCURRENCY);
     } catch (error) {
@@ -163,6 +166,17 @@ export async function GET(request) {
       );
     }
 
+    // Calculate analysis performance metrics
+    const analysisTime = Date.now() - analysisStartTime;
+    const avgTimePerComment = Math.round(
+      analysisTime / Math.max(commentTexts.length, 1),
+    );
+
+    // Log performance metrics for monitoring
+    console.log(
+      `[PERF] Analyzed ${commentTexts.length} comments in ${analysisTime}ms (avg ${avgTimePerComment}ms/comment, concurrency=${CONCURRENCY})`,
+    );
+
     // Combine comments with emotion data
     const commentsWithEmotions = paginatedComments.map((comment, index) => ({
       ...comment,
@@ -171,23 +185,27 @@ export async function GET(request) {
       isML: true,
     }));
 
-    // Return paginated response
-    return new Response(
-      JSON.stringify({
-        comments: commentsWithEmotions,
-        total: allComments.length,
-        analyzed: paginatedComments.length,
-        hasMore: allComments.length > PAGE_SIZE,
-        videoTitle: videoTitle,
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": `private, max-age=${CACHE_MAX_AGE}`,
-        },
+    // Return paginated response with performance metadata
+    const responseData = {
+      comments: commentsWithEmotions,
+      total: allComments.length,
+      analyzed: paginatedComments.length,
+      hasMore: allComments.length > PAGE_SIZE,
+      videoTitle: videoTitle,
+      // Performance data (for monitoring, not displayed in UI)
+      _timing: {
+        analysisTimeMs: analysisTime,
+        avgPerCommentMs: avgTimePerComment,
       },
-    );
+    };
+
+    return new Response(JSON.stringify(responseData), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": `private, max-age=${CACHE_MAX_AGE}`,
+      },
+    });
   } catch (error) {
     console.error("Comments API error:", error);
     return new Response(
