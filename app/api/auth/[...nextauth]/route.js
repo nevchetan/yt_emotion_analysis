@@ -21,7 +21,7 @@ export const authOptions = {
         params: {
           // YouTube scopes needed to read comments and video data
           scope:
-            "openid email profile https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl",
+            "openid email profile https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/youtube",
           access_type: "offline", // Get refresh token for long-lived access
           prompt: "consent",
           include_granted_scopes: "true",

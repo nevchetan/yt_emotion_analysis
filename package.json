@@ -13,6 +13,7 @@
     "test-email": "node test-email-config.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "@huggingface/inference": "^4.13.5",
     "@upstash/redis": "^1.36.1",
     "axios": "^1.13.2",

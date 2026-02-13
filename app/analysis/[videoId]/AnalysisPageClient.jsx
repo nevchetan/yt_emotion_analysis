@@ -4,12 +4,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  BarChart3,
-  TrendingUp,
-  MessageSquare,
-} from "lucide-react";
+import ReplyWithAIModal from "@/components/ReplyWithAIModal";
+import { ArrowLeft, BarChart3, TrendingUp, MessageSquare } from "lucide-react";
 
 export default function AnalysisPageClient({ videoId }) {
   const router = useRouter();
@@ -18,6 +14,8 @@ export default function AnalysisPageClient({ videoId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedEmotion, setSelectedEmotion] = useState(null);
+  const [replyTarget, setReplyTarget] = useState(null);
+  const [replyNotice, setReplyNotice] = useState("");
 
   useEffect(() => {
     if (!videoId) {
@@ -295,6 +293,12 @@ export default function AnalysisPageClient({ videoId }) {
           )}
         </h2>
 
+        {replyNotice && (
+          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+            {replyNotice}
+          </div>
+        )}
+
         <div className="space-y-4">
           {filteredComments.length > 0 ? (
             filteredComments.map((c, i) => (
@@ -326,6 +330,17 @@ export default function AnalysisPageClient({ videoId }) {
                           </span>
                         )}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setReplyTarget(c)}
+                        disabled={!c.commentId}
+                        title={
+                          c.commentId ? "Reply with AI" : "Reply unavailable"
+                        }
+                        className="ml-auto rounded-md bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                      >
+                        Reply with AI
+                      </button>
                     </div>
                     <p className="text-gray-700">{c.text}</p>
                   </div>
@@ -351,6 +366,18 @@ export default function AnalysisPageClient({ videoId }) {
           </div>
         )}
       </div>
+
+      {replyTarget && (
+        <ReplyWithAIModal
+          comment={replyTarget}
+          onClose={() => setReplyTarget(null)}
+          onSuccess={() => {
+            setReplyTarget(null);
+            setReplyNotice("Reply posted successfully.");
+            setTimeout(() => setReplyNotice(""), 3000);
+          }}
+        />
+      )}
     </main>
   );
 }

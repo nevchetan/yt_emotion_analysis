@@ -113,9 +113,11 @@ export async function GET(request) {
     // Parse comments from response
     const allComments = (commentsData.items || []).map((item) => {
       const snippet = item.snippet?.topLevelComment?.snippet;
+      const commentId = item.snippet?.topLevelComment?.id || item.id;
       return {
         author: snippet?.authorDisplayName || "Unknown",
         text: extractCommentText(snippet),
+        commentId,
       };
     });
 
