@@ -4,8 +4,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import ReplyWithAIModal from "@/components/ReplyWithAIModal";
-import { ArrowLeft, BarChart3, TrendingUp, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  TrendingUp,
+  MessageSquare,
+  Zap,
+} from "lucide-react";
 
 export default function AnalysisPageClient({ videoId }) {
   const router = useRouter();
@@ -124,19 +131,74 @@ export default function AnalysisPageClient({ videoId }) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
-          <div className="relative w-20 h-20 mx-auto mb-6">
-            <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-t-4 border-indigo-600"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <MessageSquare className="text-indigo-600" size={32} />
-            </div>
-          </div>
-          <p className="text-gray-700 text-lg font-semibold mb-2">
-            Analyzing Comments
-          </p>
-          <p className="text-gray-500 text-sm">This may take a moment...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+            className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+            className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+          />
         </div>
+
+        {/* Loading Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="relative z-10 text-center bg-white/10 backdrop-blur-xl p-12 rounded-2xl shadow-lift border border-white/20 max-w-md w-full mx-4"
+        >
+          {/* Animated icon */}
+          <div className="relative w-24 h-24 mx-auto mb-8">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              className="absolute inset-0 rounded-full border-2 border-transparent border-t-indigo-500 border-r-indigo-500"
+            />
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+              className="absolute inset-2 rounded-full border-2 border-transparent border-b-purple-500 border-l-purple-500"
+            />
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="absolute inset-4 flex items-center justify-center"
+            >
+              <MessageSquare className="text-indigo-400" size={32} />
+            </motion.div>
+          </div>
+
+          {/* Text */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl font-bold text-white mb-3 bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"
+          >
+            Analyzing Comments
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-sm text-slate-300"
+          >
+            This may take a moment...
+          </motion.p>
+
+          {/* Progress bar */}
+          <motion.div
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="mt-6 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+          />
+        </motion.div>
       </div>
     );
   }
@@ -148,223 +210,420 @@ export default function AnalysisPageClient({ videoId }) {
       error.includes("HUGGINGFACE_API_KEY");
 
     return (
-      <div className="p-6 max-w-6xl mx-auto">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
-          <h2 className="text-red-800 font-bold text-xl mb-3">
-            ❌ Error Loading Comments
-          </h2>
-          <div className="text-red-700 whitespace-pre-wrap mb-4">{error}</div>
-
-          {isPermissionError && (
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-            >
-              Sign Out & Sign Back In
-            </button>
-          )}
-
-          {isMLError && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-              <p className="text-yellow-800 font-semibold mb-2">
-                🔧 How to Fix:
-              </p>
-              <ol className="list-decimal list-inside text-yellow-700 space-y-1">
-                <li>Make sure you have a Hugging Face account</li>
-                <li>
-                  Get your API key from:{" "}
-                  <a
-                    href="https://huggingface.co/settings/tokens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline"
-                  >
-                    https://huggingface.co/settings/tokens
-                  </a>
-                </li>
-                <li>
-                  Add it to your{" "}
-                  <code className="bg-yellow-100 px-1 rounded">.env.local</code>{" "}
-                  file:{" "}
-                  <code className="bg-yellow-100 px-1 rounded">
-                    HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxx
-                  </code>
-                </li>
-                <li>Restart your dev server</li>
-              </ol>
-            </div>
-          )}
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden p-6">
+        {/* Animated Background */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+            className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+            className="absolute bottom-0 left-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl"
+          />
         </div>
+
+        {/* Error Container */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="relative z-10 max-w-2xl mx-auto"
+        >
+          <div className="glass-dark rounded-2xl p-8 shadow-lift border border-red-500/20 backdrop-blur-xl">
+            {/* Error Icon */}
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="flex justify-center mb-6"
+            >
+              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                <svg
+                  className="h-8 w-8 text-red-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            </motion.div>
+
+            {/* Error Title */}
+            <h2 className="text-2xl font-bold text-red-400 text-center mb-4">
+              ❌ Error Loading Comments
+            </h2>
+
+            {/* Error Message */}
+            <div className="bg-white/5 border border-red-500/20 rounded-lg p-4 mb-6">
+              <p className="text-slate-300 whitespace-pre-wrap text-sm leading-relaxed">
+                {error}
+              </p>
+            </div>
+
+            {/* Solution Box */}
+            {isPermissionError && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="mb-6 bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
+              >
+                <p className="text-blue-400 font-semibold mb-3">
+                  🔐 Permission Issue
+                </p>
+                <p className="text-slate-300 text-sm mb-4">
+                  Please sign out and sign back in to refresh your YouTube
+                  access permissions.
+                </p>
+              </motion.div>
+            )}
+
+            {isMLError && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="mb-6 bg-amber-500/10 border border-amber-500/20 rounded-lg p-4"
+              >
+                <p className="text-amber-400 font-semibold mb-3">
+                  🔧 Setup Required
+                </p>
+                <ol className="list-decimal list-inside text-slate-300 space-y-2 text-sm">
+                  <li>Create a Hugging Face account (free)</li>
+                  <li>
+                    Get your API key from{" "}
+                    <a
+                      href="https://huggingface.co/settings/tokens"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-400 hover:underline"
+                    >
+                      huggingface.co/settings/tokens
+                    </a>
+                  </li>
+                  <li>
+                    Add to your{" "}
+                    <code className="bg-white/10 px-1 rounded">.env.local</code>
+                    :
+                  </li>
+                  <li className="ml-4">
+                    <code className="bg-white/10 px-1 rounded text-xs">
+                      HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxx
+                    </code>
+                  </li>
+                  <li>Restart your dev server</li>
+                </ol>
+              </motion.div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 flex-col sm:flex-row">
+              {isPermissionError && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lift transition font-medium"
+                >
+                  Sign Out & Sign Back In
+                </motion.button>
+              )}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.reload()}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-slate-700 to-slate-800 text-slate-200 rounded-lg hover:bg-slate-700 transition font-medium"
+              >
+                Try Again
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.history.back()}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-slate-700 to-slate-800 text-slate-200 rounded-lg hover:bg-slate-700 transition font-medium"
+              >
+                Go Back
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
-  const emotionCounts = getEmotionCounts(comments); // Count ALL comments
+  const emotionCounts = getEmotionCounts(comments);
   const filteredComments = selectedEmotion
     ? comments.filter((c) => (c.emotion || "neutral") === selectedEmotion)
-    : comments.slice(0, displayCount); // Show only displayCount when not filtered
+    : comments.slice(0, displayCount);
   const hasMore = !selectedEmotion && displayCount < comments.length;
 
   return (
-    <main className="p-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="mb-6">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition"
-        >
-          <ArrowLeft size={20} />
-          Back to Videos
-        </button>
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Comment Emotion Analysis
-          </h1>
-          <button
-            onClick={() => router.push(`/dashboard/${videoId}`)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md"
-          >
-            <BarChart3 size={20} />
-            View Dashboard
-          </button>
-        </div>
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+          className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+          className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+        />
       </div>
 
-      {/* Emotion Distribution Cards Section */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <TrendingUp size={20} />
-          Emotion Distribution
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          {/* All Comments Card */}
-          <button
-            onClick={() => setSelectedEmotion(null)}
-            className={`p-3 rounded-lg border-2 transition cursor-pointer ${
-              selectedEmotion === null
-                ? "bg-indigo-100 text-indigo-800 border-indigo-300 ring-2 ring-indigo-500"
-                : "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200"
-            }`}
+      {/* Content */}
+      <div className="relative z-10 p-6 max-w-6xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05, x: -4 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => router.push("/dashboard")}
+            className="flex items-center gap-2 text-slate-300 hover:text-indigo-400 transition font-medium mb-6"
           >
-            <div className="text-2xl font-bold">{comments.length}</div>
-            <div className="text-sm font-medium">All</div>
-            <div className="text-xs opacity-75">100%</div>
-          </button>
+            <ArrowLeft size={20} />
+            Back to Videos
+          </motion.button>
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+            >
+              Comment Analysis
+            </motion.h1>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push(`/dashboard/${videoId}`)}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lift transition shadow-soft font-medium w-fit"
+            >
+              <BarChart3 size={20} />
+              View Dashboard
+            </motion.button>
+          </div>
+        </motion.div>
 
-          {/* Individual Emotion Cards */}
-          {Object.entries(emotionCounts).map(([emotion, count]) => (
-            <button
-              key={emotion}
-              onClick={() => setSelectedEmotion(emotion)}
-              className={`p-3 rounded-lg border-2 transition cursor-pointer ${
-                selectedEmotion === emotion
-                  ? `${getEmotionColor(emotion)} ring-2 ring-offset-1`
-                  : `${getEmotionColor(emotion)} opacity-60 hover:opacity-100`
+        {/* Emotion Distribution Cards Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass-dark rounded-2xl shadow-lift p-6 mb-8 border border-white/10 backdrop-blur-xl"
+        >
+          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 text-white">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              className="p-2 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg"
+            >
+              <TrendingUp size={20} className="text-white" />
+            </motion.div>
+            Emotion Distribution
+          </h2>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ staggerChildren: 0.05, delayChildren: 0.2 }}
+            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3"
+          >
+            {/* All Comments Card */}
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSelectedEmotion(null)}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={`p-3 rounded-lg border-2 transition cursor-pointer backdrop-blur-sm ${
+                selectedEmotion === null
+                  ? "bg-indigo-500/30 text-indigo-200 border-indigo-400 ring-2 ring-indigo-500/30"
+                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
               }`}
             >
-              <div className="text-2xl font-bold">{count}</div>
-              <div className="text-sm font-medium">
-                {getEmotionLabel(emotion)}
-              </div>
-              <div className="text-xs opacity-75">
-                {comments.length > 0
-                  ? Math.round((count / comments.length) * 100)
-                  : 0}
-                %
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+              <div className="text-2xl font-bold">{comments.length}</div>
+              <div className="text-sm font-medium">All</div>
+              <div className="text-xs opacity-75">100%</div>
+            </motion.button>
 
-      {/* Comments List Section */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">
-          Comments ({filteredComments.length})
-          {!selectedEmotion && displayCount < comments.length && (
-            <span className="ml-2 text-sm font-normal text-gray-600">
-              - Showing {displayCount} of {comments.length}
-            </span>
-          )}
-          {selectedEmotion && (
-            <span className="ml-2 text-sm font-normal text-gray-600">
-              - Filtered by {getEmotionLabel(selectedEmotion)}
-            </span>
-          )}
-        </h2>
-
-        {replyNotice && (
-          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-            {replyNotice}
-          </div>
-        )}
-
-        <div className="space-y-4">
-          {filteredComments.length > 0 ? (
-            filteredComments.map((c, i) => (
-              <div
-                key={i}
-                className="p-4 rounded-lg border border-gray-200 hover:shadow-md transition"
+            {/* Individual Emotion Cards */}
+            {Object.entries(emotionCounts).map(([emotion, count], idx) => (
+              <motion.button
+                key={emotion}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: (idx + 1) * 0.05 }}
+                onClick={() => setSelectedEmotion(emotion)}
+                className={`p-3 rounded-lg border-2 transition cursor-pointer backdrop-blur-sm ${
+                  selectedEmotion === emotion
+                    ? `${getEmotionColor(emotion)} ring-2 ring-offset-1`
+                    : `${getEmotionColor(emotion)} opacity-60 hover:opacity-100`
+                }`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <strong className="text-gray-800">{c.author}</strong>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold border ${getEmotionColor(
-                          c.emotion || "neutral",
-                        )}`}
-                      >
-                        {getEmotionLabel(c.emotion || "neutral")}
-                        {c.emotionScore && (
-                          <span className="ml-1 opacity-75">
-                            ({Math.round(c.emotionScore * 100)}%)
-                          </span>
-                        )}
-                        {c.isML === false && (
-                          <span
-                            className="ml-1 text-xs opacity-60"
-                            title="Keyword-based analysis (ML unavailable)"
-                          >
-                            ⚠
-                          </span>
-                        )}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setReplyTarget(c)}
-                        disabled={!c.commentId}
-                        title={
-                          c.commentId ? "Reply with AI" : "Reply unavailable"
-                        }
-                        className="ml-auto rounded-md bg-indigo-600 px-3 py-1 text-xs font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
-                      >
-                        Reply with AI
-                      </button>
-                    </div>
-                    <p className="text-gray-700">{c.text}</p>
-                  </div>
+                <div className="text-2xl font-bold">{count}</div>
+                <div className="text-sm font-medium">
+                  {getEmotionLabel(emotion)}
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500 text-center py-8">
-              No comments found for this emotion.
-            </p>
-          )}
-        </div>
+                <div className="text-xs opacity-75">
+                  {comments.length > 0
+                    ? Math.round((count / comments.length) * 100)
+                    : 0}
+                  %
+                </div>
+              </motion.button>
+            ))}
+          </motion.div>
+        </motion.div>
 
-        {/* Load More Button */}
-        {!selectedEmotion && hasMore && (
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={loadMore}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition flex items-center gap-2 shadow-md"
+        {/* Comments List Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-dark rounded-2xl shadow-lift p-8 border border-white/10 backdrop-blur-xl"
+        >
+          <h2 className="text-xl font-semibold mb-6 text-white flex items-center gap-2">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              className="p-2 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg"
             >
-              Load More ({comments.length - displayCount} remaining)
-            </button>
+              <MessageSquare size={20} className="text-white" />
+            </motion.div>
+            Comments ({filteredComments.length})
+            {!selectedEmotion && displayCount < comments.length && (
+              <span className="ml-2 text-sm font-normal text-slate-400">
+                · {displayCount} of {comments.length}
+              </span>
+            )}
+            {selectedEmotion && (
+              <span className="ml-2 text-sm font-normal text-slate-400">
+                · Filtered by {getEmotionLabel(selectedEmotion)}
+              </span>
+            )}
+          </h2>
+
+          {replyNotice && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400 backdrop-blur-sm"
+            >
+              ✓ {replyNotice}
+            </motion.div>
+          )}
+
+          <div className="space-y-3">
+            <AnimatePresence mode="wait">
+              {filteredComments.length > 0 ? (
+                filteredComments.map((c, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ delay: i * 0.05 }}
+                    whileHover={{
+                      x: 4,
+                      backgroundColor: "rgba(255,255,255,0.08)",
+                    }}
+                    className="p-4 rounded-lg border border-white/10 bg-white/5 hover:border-white/20 transition group"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
+                          <strong className="text-white truncate">
+                            {c.author}
+                          </strong>
+                          <motion.span
+                            whileHover={{ scale: 1.05 }}
+                            className={`px-2 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${getEmotionColor(
+                              c.emotion || "neutral",
+                            )}`}
+                          >
+                            {getEmotionLabel(c.emotion || "neutral")}
+                            {c.emotionScore && (
+                              <span className="ml-1 opacity-75">
+                                ({Math.round(c.emotionScore * 100)}%)
+                              </span>
+                            )}
+                            {c.isML === false && (
+                              <span
+                                className="ml-1 text-xs opacity-60"
+                                title="Keyword-based analysis"
+                              >
+                                ⚠
+                              </span>
+                            )}
+                          </motion.span>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            type="button"
+                            onClick={() => setReplyTarget(c)}
+                            disabled={!c.commentId}
+                            title={
+                              c.commentId
+                                ? "Reply with AI"
+                                : "Reply unavailable"
+                            }
+                            className="ml-auto rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-1 text-xs font-semibold text-white hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50 transition group-hover:opacity-100 opacity-0"
+                          >
+                            Reply with AI
+                          </motion.button>
+                        </div>
+                        <p className="text-slate-300 leading-relaxed break-words">
+                          {c.text}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-slate-400 text-center py-12"
+                >
+                  No comments found for this emotion.
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
-        )}
+
+          {/* Load More Button */}
+          {!selectedEmotion && hasMore && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8 flex justify-center"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={loadMore}
+                className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition flex items-center gap-2 shadow-lift hover:shadow-glow"
+              >
+                <Zap size={18} />
+                Load More ({comments.length - displayCount} remaining)
+              </motion.button>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
 
       {replyTarget && (
@@ -373,7 +632,7 @@ export default function AnalysisPageClient({ videoId }) {
           onClose={() => setReplyTarget(null)}
           onSuccess={() => {
             setReplyTarget(null);
-            setReplyNotice("Reply posted successfully.");
+            setReplyNotice("Reply posted successfully!");
             setTimeout(() => setReplyNotice(""), 3000);
           }}
         />

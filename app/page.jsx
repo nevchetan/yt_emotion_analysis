@@ -704,18 +704,34 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#08080a] via-[#0a0a0f] to-[#000000] text-gray-300 relative">
-      {/* Animated Background Grid */}
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-900 text-gray-300 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+          className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+          className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ y: [0, -20, 0] }}
+          transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
+          className="absolute top-1/2 left-1/2 w-72 h-72 -translate-x-1/2 -translate-y-1/2 bg-blue-500/10 rounded-full blur-3xl"
+        />
+      </div>
+
+      {/* Grid Pattern Overlay */}
       <div
-        className="fixed inset-0 z-0 opacity-5"
+        className="fixed inset-0 z-0 opacity-[0.03]"
         style={{
           backgroundImage: `linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
         }}
       ></div>
-
-      {/* Scanline Effect Overlay */}
-      <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]"></div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         {/* Header */}
@@ -725,27 +741,53 @@ export default function Home() {
           className="mb-12"
         >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-cyan-400">
-                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-                <span className="text-[12px] uppercase font-bold tracking-widest">
-                  System Ready
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="space-y-3"
+            >
+              <div className="flex items-center gap-2">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-3 h-3 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400"
+                ></motion.div>
+                <span className="text-[11px] uppercase font-extrabold tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                  SYSTEM ONLINE
                 </span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-black text-white">
+              <motion.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent"
+              >
                 Welcome back,{" "}
-                <span className="text-cyan-400">{session.user.name}</span>
-              </h1>
-              <p className="text-gray-500 text-lg">
-                Select a video to analyze audience sentiment
-              </p>
-            </div>
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-cyan-400"
+                >
+                  {session.user.name}
+                </motion.span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-lg text-slate-400 font-light"
+              >
+                📊 Select a video to analyze audience sentiment
+              </motion.p>
+            </motion.div>
 
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => signOut()}
-              className="px-6 py-3 bg-red-500/10 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-500/20 hover:border-red-500 transition-all font-semibold uppercase tracking-wider text-sm"
+              className="px-6 py-3 bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/50 text-red-400 hover:border-red-400 hover:bg-red-600/30 rounded-lg font-semibold uppercase tracking-wider text-sm transition-all hover:shadow-lift"
             >
               Sign Out
             </motion.button>
@@ -759,19 +801,44 @@ export default function Home() {
           transition={{ delay: 0.1 }}
           className="space-y-6"
         >
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <PlayCircle className="text-cyan-400" size={24} />
-              <h2 className="text-2xl font-bold text-white">
-                Your Uploaded Videos
-              </h2>
-              <span className="ml-auto px-3 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full text-cyan-400 text-sm font-semibold">
-                {videos.length} videos
-              </span>
+          <div className="space-y-4 mb-8">
+            {/* Section Header with Premium Look */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/10 to-purple-500/0 rounded-lg blur-xl"></div>
+              <div className="relative px-6 py-6 border border-purple-500/30 rounded-lg bg-gradient-to-r from-slate-900/50 to-slate-900/30 backdrop-blur-md">
+                <div className="flex items-center gap-4">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 3 }}
+                    className="text-indigo-400 flex-shrink-0"
+                  >
+                    <PlayCircle size={28} />
+                  </motion.div>
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 mb-1">
+                      Your Uploaded Videos
+                    </h2>
+                    <p className="text-slate-400 text-sm font-medium">
+                      Select a video to analyze audience sentiment and emotions
+                    </p>
+                  </div>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring" }}
+                    className="px-4 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/50 rounded-lg text-indigo-300 text-sm font-bold uppercase tracking-wider"
+                  >
+                    {videos.length} {videos.length === 1 ? "video" : "videos"}
+                  </motion.span>
+                </div>
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.4, duration: 0.8 }}
+                  className="mt-4 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-transparent rounded-full origin-left"
+                ></motion.div>
+              </div>
             </div>
-            <p className="text-gray-500 text-sm">
-              Click on any video to analyze comments and emotion distribution
-            </p>
           </div>
 
           <AnimatePresence mode="wait">
@@ -819,44 +886,53 @@ export default function Home() {
                   hidden: { opacity: 0 },
                   show: {
                     opacity: 1,
-                    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+                    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                   },
                 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8"
               >
-                {videos.map((video) => (
+                {videos.map((video, idx) => (
                   <motion.div
                     key={video.snippet.resourceId.videoId}
                     variants={{
-                      hidden: { opacity: 0, scale: 0.8, y: 20 },
-                      show: { opacity: 1, scale: 1, y: 0 },
+                      hidden: { opacity: 0, y: 20, scale: 0.95 },
+                      show: {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        transition: {
+                          type: "spring",
+                          stiffness: 100,
+                          damping: 12,
+                        },
+                      },
                     }}
-                    whileHover={{ y: -8 }}
                     onClick={() => {
                       setSelectedVideo(video);
                       setEmotionResults(null);
                     }}
-                    className={`group relative cursor-pointer rounded-xl overflow-hidden transition-all duration-300 border ${
+                    className={`group relative cursor-pointer transition-all duration-300 ${
                       selectedVideo?.snippet.resourceId.videoId ===
                       video.snippet.resourceId.videoId
-                        ? "border-cyan-400 ring-2 ring-cyan-400/30"
-                        : "border-white/10 hover:border-cyan-400/50"
+                        ? "ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-900"
+                        : ""
                     }`}
                   >
-                    {/* Glow effect */}
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-300 ${
-                        selectedVideo?.snippet.resourceId.videoId ===
-                        video.snippet.resourceId.videoId
-                          ? "from-cyan-500/20 to-fuchsia-500/20 opacity-100"
-                          : "from-cyan-500/0 to-fuchsia-500/0 opacity-0 group-hover:opacity-100"
-                      }`}
-                    ></div>
+                    {/* Glow effect overlay */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity:
+                          selectedVideo?.snippet.resourceId.videoId ===
+                          video.snippet.resourceId.videoId
+                            ? 1
+                            : 0,
+                      }}
+                      className="absolute inset-0 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 rounded-xl pointer-events-none z-10 transition-opacity duration-300"
+                    ></motion.div>
 
                     {/* Content */}
-                    <div className="relative bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-sm p-0">
-                      <VideoCard video={video} />
-                    </div>
+                    <VideoCard video={video} index={idx} />
                   </motion.div>
                 ))}
               </motion.div>
@@ -870,19 +946,30 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mt-12 space-y-6"
+            className="mt-12 space-y-8"
           >
-            <div className="bg-gradient-to-br from-cyan-500/10 to-fuchsia-500/10 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-              <div className="space-y-6">
-                {/* Selected Video Info */}
-                <div className="border-b border-white/10 pb-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-white">
-                        {selectedVideo.snippet.title}
-                      </h3>
-                      <p className="text-gray-500 text-sm">
-                        Published on{" "}
+            {/* Premium Card Container */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-purple-500/5 to-pink-500/0 rounded-xl blur-xl"></div>
+              <div className="relative bg-gradient-to-br from-slate-900/60 to-slate-900/40 border border-purple-500/30 rounded-xl p-8 backdrop-blur-lg">
+                {/* Video Title Section */}
+                <div className="space-y-4 pb-6 border-b border-purple-500/20">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 mb-2">
+                      {selectedVideo.snippet.title}
+                    </h3>
+                    <p className="text-slate-400 text-sm font-medium">
+                      Published on{" "}
+                      <span className="text-indigo-300 font-semibold">
                         {new Date(
                           selectedVideo.snippet.publishedAt,
                         ).toLocaleDateString("en-US", {
@@ -890,20 +977,36 @@ export default function Home() {
                           month: "long",
                           day: "numeric",
                         })}
-                      </p>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() =>
-                        analyzeVideo(selectedVideo.snippet.resourceId.videoId)
-                      }
-                      disabled={analysisLoading}
-                      className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white rounded-lg font-bold hover:opacity-90 transition-all disabled:opacity-50 uppercase tracking-wider text-sm"
-                    >
-                      {analysisLoading ? "Analyzing..." : "Analyze Comments"}
-                    </motion.button>
-                  </div>
+                      </span>
+                    </p>
+                  </motion.div>
+
+                  {/* Analyze Button - Premium Style */}
+                  <motion.button
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: "0 10px 30px rgba(99, 102, 241, 0.3)",
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() =>
+                      analyzeVideo(selectedVideo.snippet.resourceId.videoId)
+                    }
+                    disabled={analysisLoading}
+                    className="w-full px-6 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-lg font-bold hover:opacity-90 transition-all disabled:opacity-50 uppercase tracking-wider text-sm shadow-lg disabled:shadow-none"
+                  >
+                    {analysisLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ repeat: Infinity, duration: 1 }}
+                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                        ></motion.div>
+                        Analyzing Comments...
+                      </span>
+                    ) : (
+                      "🚀 Analyze Emotions"
+                    )}
+                  </motion.button>
                 </div>
 
                 {/* Analysis Results */}
@@ -911,69 +1014,134 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-6"
+                    className="space-y-6 pt-6"
                   >
+                    {/* Premium Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <p className="text-gray-500 text-sm mb-1">
-                          Overall Sentiment
-                        </p>
-                        <p className="text-2xl font-bold text-cyan-400 capitalize">
-                          {emotionResults.overall}
-                        </p>
-                      </div>
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <p className="text-gray-500 text-sm mb-1">Positive</p>
-                        <p className="text-2xl font-bold text-green-400">
-                          {emotionResults.positive}%
-                        </p>
-                      </div>
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <p className="text-gray-500 text-sm mb-1">Negative</p>
-                        <p className="text-2xl font-bold text-red-400">
-                          {emotionResults.negative}%
-                        </p>
-                      </div>
+                      {/* Overall Sentiment Card */}
+                      <motion.div
+                        whileHover={{
+                          y: -4,
+                          boxShadow: "0 10px 25px rgba(99, 102, 241, 0.2)",
+                        }}
+                        className="relative overflow-hidden rounded-lg p-5 bg-gradient-to-br from-indigo-600/20 to-purple-600/10 border border-indigo-500/40 backdrop-blur"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        <div className="relative space-y-2">
+                          <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            Overall Sentiment
+                          </p>
+                          <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300 capitalize">
+                            {emotionResults.overall}
+                          </p>
+                          <div className="h-1 w-16 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+                        </div>
+                      </motion.div>
+
+                      {/* Positive Card */}
+                      <motion.div
+                        whileHover={{
+                          y: -4,
+                          boxShadow: "0 10px 25px rgba(34, 197, 94, 0.2)",
+                        }}
+                        className="relative overflow-hidden rounded-lg p-5 bg-gradient-to-br from-green-600/20 to-emerald-600/10 border border-green-500/40 backdrop-blur"
+                      >
+                        <div className="relative space-y-2">
+                          <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            Positive Emotions
+                          </p>
+                          <p className="text-3xl font-black text-green-300">
+                            {emotionResults.positive}%
+                          </p>
+                          <div className="h-1 w-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                        </div>
+                      </motion.div>
+
+                      {/* Negative Card */}
+                      <motion.div
+                        whileHover={{
+                          y: -4,
+                          boxShadow: "0 10px 25px rgba(239, 68, 68, 0.2)",
+                        }}
+                        className="relative overflow-hidden rounded-lg p-5 bg-gradient-to-br from-red-600/20 to-rose-600/10 border border-red-500/40 backdrop-blur"
+                      >
+                        <div className="relative space-y-2">
+                          <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            Negative Emotions
+                          </p>
+                          <p className="text-3xl font-black text-red-300">
+                            {emotionResults.negative}%
+                          </p>
+                          <div className="h-1 w-16 bg-gradient-to-r from-red-500 to-rose-500 rounded-full"></div>
+                        </div>
+                      </motion.div>
                     </div>
 
                     {emotionResults.keyPhrases && (
-                      <div className="space-y-3">
-                        <h4 className="text-lg font-semibold text-white">
-                          Key Phrases
-                        </h4>
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="space-y-4"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
+                          <h4 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">
+                            Key Phrases & Themes
+                          </h4>
+                        </div>
                         <div className="flex flex-wrap gap-2">
                           {emotionResults.keyPhrases.map((phrase, idx) => (
-                            <span
+                            <motion.span
                               key={idx}
-                              className="px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 rounded-full text-cyan-400 text-sm font-medium"
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              className="px-4 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/50 rounded-full text-indigo-300 text-sm font-semibold cursor-default hover:shadow-lg transition-shadow"
                             >
                               {phrase}
-                            </span>
+                            </motion.span>
                           ))}
                         </div>
-                      </div>
+                      </motion.div>
                     )}
                   </motion.div>
                 )}
 
                 {emotionResults?.error && (
-                  <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4">
-                    <p className="text-red-400 font-semibold">
-                      {emotionResults.error}
-                    </p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-red-600/20 to-rose-600/10 border border-red-500/40 rounded-lg p-6 backdrop-blur"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                      <p className="text-red-400 font-bold uppercase tracking-wider text-sm">
+                        Error
+                      </p>
+                    </div>
+                    <p className="text-red-300">{emotionResults.error}</p>
+                  </motion.div>
                 )}
 
                 {!emotionResults && (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <BarChart2 size={48} className="text-gray-700 mb-4" />
-                    <p className="text-gray-500 font-mono uppercase tracking-widest">
-                      Click "Analyze Comments" to see results
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center py-16 text-center"
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
+                      transition={{ repeat: Infinity, duration: 3 }}
+                      className="mb-6"
+                    >
+                      <BarChart2 size={48} className="text-slate-600" />
+                    </motion.div>
+                    <p className="text-slate-500 font-mono uppercase tracking-widest text-sm">
+                      📊 Click "Analyze Sentiments" to see results
                     </p>
-                  </div>
+                  </motion.div>
                 )}
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </div>

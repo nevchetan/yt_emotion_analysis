@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
   BarChart,
   Bar,
@@ -34,12 +35,16 @@ const CustomTooltip = ({ active, payload }) => {
   if (active && payload?.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white/95 backdrop-blur p-3 rounded-lg shadow-lg border border-slate-200"
+      >
         <p className="font-semibold text-gray-900">{data.emotion}</p>
         <p className="text-sm text-indigo-600 font-medium">
           Count: {data.count}
         </p>
-      </div>
+      </motion.div>
     );
   }
   return null;
@@ -64,56 +69,67 @@ export default function EmotionBar({ emotionData = {} }) {
 
   if (chartData.length === 0 || chartData.every((d) => d.count === 0)) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 text-gray-500">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center h-96 text-slate-400"
+      >
         <p className="text-lg font-medium">No emotion data available</p>
         <p className="text-sm mt-1">Analyze comments to see results</p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <BarChart
-        data={chartData}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 20,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis
-          dataKey="emotion"
-          tick={{ fill: "#6B7280", fontSize: 12 }}
-          axisLine={{ stroke: "#d1d5db" }}
-          angle={-45}
-          textAnchor="end"
-          height={80}
-        />
-        <YAxis
-          tick={{ fill: "#6B7280", fontSize: 12 }}
-          axisLine={{ stroke: "#d1d5db" }}
-          label={{ value: "Count", angle: -90, position: "insideLeft" }}
-        />
-        <Tooltip
-          content={<CustomTooltip />}
-          cursor={{ fill: "rgba(99, 102, 241, 0.1)" }}
-        />
-        <Bar
-          dataKey="count"
-          fill="#6366F1"
-          radius={[8, 8, 0, 0]}
-          animationDuration={800}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart
+          data={chartData}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 20,
+          }}
         >
-          {chartData.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={EMOTION_CONFIG[entry.emotionKey]?.color || "#6366F1"}
-            />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis
+            dataKey="emotion"
+            tick={{ fill: "#6B7280", fontSize: 12 }}
+            axisLine={{ stroke: "#d1d5db" }}
+            angle={-45}
+            textAnchor="end"
+            height={80}
+          />
+          <YAxis
+            tick={{ fill: "#6B7280", fontSize: 12 }}
+            axisLine={{ stroke: "#d1d5db" }}
+            label={{ value: "Count", angle: -90, position: "insideLeft" }}
+          />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: "rgba(99, 102, 241, 0.1)" }}
+          />
+          <Bar
+            dataKey="count"
+            fill="#6366F1"
+            radius={[8, 8, 0, 0]}
+            animationDuration={1000}
+            animationEasing="ease-out"
+          >
+            {chartData.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={EMOTION_CONFIG[entry.emotionKey]?.color || "#6366F1"}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </motion.div>
   );
 }

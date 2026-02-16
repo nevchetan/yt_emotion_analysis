@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import EmotionPie from "@/components/EmotionPie";
 import EmotionBar from "@/components/EmotionBar";
 import ScheduleModal from "@/components/ScheduleModal";
@@ -14,6 +15,7 @@ import {
   Download,
   MessageSquare,
   Calendar,
+  Zap,
 } from "lucide-react";
 
 export default function DashboardClient({ videoId }) {
@@ -309,34 +311,96 @@ export default function DashboardClient({ videoId }) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
-          <div className="relative w-20 h-20 mx-auto mb-6">
-            <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-t-4 border-indigo-600"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <BarChart3 className="text-indigo-600" size={32} />
-            </div>
-          </div>
-          <p className="text-gray-700 text-lg font-semibold mb-2">
-            {loadingMessage}
-          </p>
-          <p className="text-gray-500 text-sm">
-            This may take 15-30 seconds for all comments
-          </p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        {/* Background animation */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+            className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+            className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+          />
         </div>
+
+        {/* Loading Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="relative z-10 text-center bg-white/10 backdrop-blur-xl p-12 rounded-2xl shadow-lift border border-white/20 max-w-md w-full mx-4"
+        >
+          {/* Animated icon */}
+          <div className="relative w-24 h-24 mx-auto mb-8">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              className="absolute inset-0 rounded-full border-2 border-transparent border-t-indigo-500 border-r-indigo-500"
+            />
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+              className="absolute inset-2 rounded-full border-2 border-transparent border-b-purple-500 border-l-purple-500"
+            />
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="absolute inset-4 flex items-center justify-center"
+            >
+              <Zap className="text-indigo-400" size={32} />
+            </motion.div>
+          </div>
+
+          {/* Text */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl font-bold text-white mb-3 bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"
+          >
+            {loadingMessage}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-sm text-slate-300"
+          >
+            This may take 15-30 seconds for complete analysis
+          </motion.p>
+
+          {/* Progress bar */}
+          <motion.div
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="mt-6 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+          />
+        </motion.div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="max-w-md w-full">
-          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 shadow-lg">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-shrink-0">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="max-w-md w-full"
+        >
+          <div className="glass-dark rounded-2xl p-8 shadow-lift border border-red-500/20 backdrop-blur-xl">
+            {/* Error Icon */}
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="flex justify-center mb-6"
+            >
+              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
                 <svg
-                  className="h-8 w-8 text-red-600"
+                  className="h-8 w-8 text-red-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -349,27 +413,39 @@ export default function DashboardClient({ videoId }) {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-red-900">
-                Error Loading Dashboard
-              </h3>
-            </div>
-            <p className="text-red-800 mb-4">{error}</p>
-            <div className="flex gap-3">
-              <button
+            </motion.div>
+
+            {/* Error Title */}
+            <h3 className="text-xl font-bold text-red-400 text-center mb-4">
+              Error Loading Dashboard
+            </h3>
+
+            {/* Error Message */}
+            <p className="text-slate-300 text-center mb-6 text-sm leading-relaxed">
+              {error}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 flex-col sm:flex-row">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.reload()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition font-medium"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:shadow-lift transition font-medium"
               >
                 Retry
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => router.push("/")}
-                className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition font-medium"
+                className="flex-1 px-4 py-3 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 transition font-medium"
               >
                 Go Home
-              </button>
+              </motion.button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -381,271 +457,384 @@ export default function DashboardClient({ videoId }) {
   // Show message if no comments were analyzed
   if (comments.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="max-w-md w-full">
-          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-8 shadow-lg text-center">
-            <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-              <MessageSquare className="text-yellow-600" size={32} />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="max-w-md w-full"
+        >
+          <div className="glass-dark rounded-2xl p-8 shadow-lift border border-amber-500/20 backdrop-blur-xl text-center">
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="mx-auto w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mb-6"
+            >
+              <MessageSquare className="text-amber-400" size={32} />
+            </motion.div>
+            <h3 className="text-xl font-bold text-white mb-3">
               No Comments Found
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slate-300 mb-6">
               This video doesn't have any comments yet, or comments are
               disabled.
             </p>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => router.push("/")}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition font-medium"
+              className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lift transition font-medium"
             >
               Back to Videos
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <main className="p-6 max-w-7xl mx-auto">
-      {/* Schedule Modal */}
-      <ScheduleModal
-        isOpen={isScheduleModalOpen}
-        onClose={() => setIsScheduleModalOpen(false)}
-        videoId={videoId}
-        videoTitle={videoTitle}
-      />
-
-      {/* Action Buttons - Top Priority */}
-      <div className="mb-6 flex justify-end gap-4 flex-wrap">
-        <button
-          onClick={() => setIsScheduleModalOpen(true)}
-          className="flex items-center gap-3 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition shadow-xl text-lg"
-        >
-          <Calendar size={24} />
-          Set Schedule
-        </button>
-        <button
-          onClick={downloadPDF}
-          disabled={downloadingPdf}
-          className="flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xl text-lg"
-        >
-          <Download size={28} />
-          {downloadingPdf ? "Generating PDF..." : "Download PDF Report"}
-        </button>
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+          className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+          className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+        />
       </div>
 
-      {/* Header */}
-      <div className="mb-8 bg-white rounded-lg shadow-md p-6 border-b-4 border-indigo-600">
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-          <button
+      {/* Content */}
+      <div className="relative z-10 p-6 max-w-7xl mx-auto">
+        {/* Schedule Modal */}
+        <ScheduleModal
+          isOpen={isScheduleModalOpen}
+          onClose={() => setIsScheduleModalOpen(false)}
+          videoId={videoId}
+          videoTitle={videoTitle}
+        />
+
+        {/* Action Buttons - Top Priority */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 flex justify-end gap-3 flex-wrap"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsScheduleModalOpen(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition shadow-lift hover:shadow-glow text-sm md:text-base"
+          >
+            <Calendar size={18} />
+            <span>Schedule</span>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={downloadPDF}
+            disabled={downloadingPdf}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold rounded-lg transition shadow-lift disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-glow text-sm md:text-base"
+          >
+            <Download size={18} />
+            <span>{downloadingPdf ? "Generating..." : "Export PDF"}</span>
+          </motion.button>
+        </motion.div>
+
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05, x: -4 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => router.push(`/analysis/${videoId}`)}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition font-medium"
+            className="flex items-center gap-2 px-4 py-2 text-slate-300 hover:text-indigo-400 transition font-medium mb-6"
           >
             <ArrowLeft size={20} />
             Back to Analysis
-          </button>
-        </div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">
-          Emotion Analysis Dashboard
-        </h1>
-        <p className="text-gray-600 text-lg">Video ID: {videoId}</p>
-      </div>
+          </motion.button>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">
-                Total Comments
-              </p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">
-                {totalComments}
-              </p>
-            </div>
-            <BarChart3 className="text-indigo-500" size={40} />
+          <div>
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-4xl md:text-5xl font-black mb-3 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+            >
+              Emotion Analysis Dashboard
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-slate-400 text-lg"
+            >
+              {videoTitle || "Video ID: " + videoId}
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Analyzed</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">
-                {analyzedCount}
+        {/* Summary Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        >
+          {[
+            {
+              icon: BarChart3,
+              label: "Total Comments",
+              value: totalComments,
+              gradient: "from-indigo-600 to-blue-600",
+              delay: 0,
+            },
+            {
+              icon: TrendingUp,
+              label: "Analyzed",
+              value: analyzedCount,
+              gradient: "from-green-600 to-emerald-600",
+              delay: 0.1,
+            },
+            {
+              icon: Zap,
+              label: "Top Emotion",
+              value:
+                topEmotion?.emotion.charAt(0).toUpperCase() +
+                topEmotion?.emotion.slice(1),
+              gradient: "from-amber-600 to-orange-600",
+              delay: 0.2,
+            },
+            {
+              icon: PieChartIcon,
+              label: "Emotion Types",
+              value: Object.keys(emotionCounts).length,
+              gradient: "from-purple-600 to-pink-600",
+              delay: 0.3,
+            },
+          ].map((card, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: card.delay }}
+              className={`glass-dark rounded-xl p-6 shadow-lift border border-white/10 backdrop-blur-xl group hover:border-indigo-500/30 hover-lift`}
+            >
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 10 }}
+                className={`w-12 h-12 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-4`}
+              >
+                <card.icon className="text-white" size={24} />
+              </motion.div>
+              <p className="text-slate-400 text-sm font-medium mb-2">
+                {card.label}
               </p>
-              <p className="text-xs text-green-600 font-semibold mt-1">
-                Complete analysis ✓
-              </p>
-            </div>
-            <div className="text-green-500 text-2xl font-bold">✓</div>
-          </div>
-        </div>
+              <p className="text-3xl font-bold text-white">{card.value}</p>
+            </motion.div>
+          ))}
+        </motion.div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Top Emotion</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2 capitalize">
-                {topEmotion?.emotion || "N/A"}
-              </p>
-              {topEmotion && (
-                <p className="text-sm text-gray-500 mt-1">
-                  {topEmotion.count} comments ({topEmotion.percentage}%)
-                </p>
-              )}
-            </div>
-            <TrendingUp className="text-yellow-500" size={40} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Emotion Types</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">
-                {Object.keys(emotionCounts).length}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Unique emotions detected
-              </p>
-            </div>
-            <PieChartIcon className="text-purple-500" size={40} />
-          </div>
-        </div>
-      </div>
-
-      {/* Charts Section */}
-      <div
-        ref={chartsRef}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
-      >
-        {/* Pie Chart */}
-        <div className="bg-white rounded-lg p-8 shadow-lg border border-gray-200">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b-2 border-indigo-500 pb-3">
-            <PieChartIcon size={28} className="text-indigo-600" />
-            Distribution Overview
-          </h2>
-          <EmotionPie emotionData={emotionCounts} />
-          {/* Count Legend */}
-          <div className="mt-6 border-t pt-4">
-            <h3 className="text-sm font-semibold mb-3 text-gray-800 uppercase tracking-wide">
-              Emotion Breakdown:
-            </h3>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              {emotionStats.map((stat) => (
-                <div
-                  key={stat.emotion}
-                  className="flex justify-between items-center p-2 bg-gray-100 rounded hover:bg-gray-200 transition"
-                >
-                  <span className="capitalize text-gray-700 font-medium">
-                    {stat.emotion}:
-                  </span>
-                  <span className="font-bold text-indigo-600 text-lg">
-                    {stat.count}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Bar Chart */}
-        <div className="bg-white rounded-lg p-8 shadow-lg border border-gray-200">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b-2 border-indigo-500 pb-3">
-            <BarChart3 size={28} className="text-indigo-600" />
-            Comparative Analysis
-          </h2>
-          <EmotionBar emotionData={emotionCounts} />
-        </div>
-      </div>
-
-      {/* Detailed Stats Table */}
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b-2 border-indigo-500 pb-3">
-          📊 Detailed Emotion Statistics
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-indigo-600">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                  Emotion
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                  Count
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                  Percentage
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                  Trend
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {emotionStats.map((stat, index) => (
-                <tr
-                  key={stat.emotion}
-                  className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className="inline-block px-3 py-1 rounded-full text-sm font-bold text-white capitalize"
-                      style={{
-                        backgroundColor:
-                          {
-                            joy: "#FBBF24",
-                            sadness: "#3B82F6",
-                            anger: "#EF4444",
-                            fear: "#A855F7",
-                            surprise: "#F97316",
-                            disgust: "#10B981",
-                            neutral: "#6B7280",
-                          }[stat.emotion] || "#6B7280",
-                      }}
-                    >
-                      {stat.emotion}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-lg font-bold text-gray-900">
+        {/* Charts Section */}
+        <motion.div
+          ref={chartsRef}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+        >
+          {/* Pie Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="glass-dark rounded-2xl p-8 shadow-lift border border-white/10 backdrop-blur-xl hover-lift"
+          >
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-white">
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center"
+              >
+                <PieChartIcon className="text-white" size={22} />
+              </motion.div>
+              Distribution Overview
+            </h2>
+            <EmotionPie emotionData={emotionCounts} />
+            {/* Count Legend */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-6 pt-6 border-t border-white/10"
+            >
+              <h3 className="text-sm font-semibold mb-4 text-slate-300 uppercase tracking-wider">
+                Breakdown
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {emotionStats.map((stat, idx) => (
+                  <motion.div
+                    key={stat.emotion}
+                    whileHover={{ scale: 1.05 }}
+                    className="bg-white/5 hover:bg-white/10 rounded-lg p-3 border border-white/0 hover:border-white/10 transition cursor-pointer"
+                  >
+                    <p className="text-slate-400 text-xs font-medium mb-1">
+                      {stat.emotion.charAt(0).toUpperCase() +
+                        stat.emotion.slice(1)}
+                    </p>
+                    <p className="text-lg font-bold text-indigo-400">
                       {stat.count}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-lg font-bold text-indigo-600">
-                      {stat.percentage}%
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="w-48">
-                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div
-                          className="h-3 rounded-full transition-all duration-500"
-                          style={{
-                            width: `${stat.percentage}%`,
-                            backgroundColor:
-                              {
-                                joy: "#FBBF24",
-                                sadness: "#3B82F6",
-                                anger: "#EF4444",
-                                fear: "#A855F7",
-                                surprise: "#F97316",
-                                disgust: "#10B981",
-                                neutral: "#6B7280",
-                              }[stat.emotion] || "#6B7280",
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  </td>
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Bar Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="glass-dark rounded-2xl p-8 shadow-lift border border-white/10 backdrop-blur-xl hover-lift"
+          >
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-white">
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center"
+              >
+                <BarChart3 className="text-white" size={22} />
+              </motion.div>
+              Comparative Analysis
+            </h2>
+            <EmotionBar emotionData={emotionCounts} />
+          </motion.div>
+        </motion.div>
+
+        {/* Detailed Stats Table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="glass-dark rounded-2xl shadow-lift border border-white/10 p-8 backdrop-blur-xl overflow-hidden"
+        >
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-white">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center"
+            >
+              📊
+            </motion.div>
+            Detailed Statistics
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Emotion
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Count
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Percentage
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Distribution
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {emotionStats.map((stat, index) => (
+                  <motion.tr
+                    key={stat.emotion}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + index * 0.05 }}
+                    whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
+                    className="border-b border-white/5 hover:border-white/10 transition"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <motion.span
+                        whileHover={{ scale: 1.05 }}
+                        className="inline-block px-3 py-1 rounded-full text-sm font-bold text-white capitalize"
+                        style={{
+                          backgroundColor:
+                            {
+                              joy: "#FBBF24",
+                              sadness: "#3B82F6",
+                              anger: "#EF4444",
+                              fear: "#A855F7",
+                              surprise: "#F97316",
+                              disgust: "#10B981",
+                              neutral: "#6B7280",
+                            }[stat.emotion] || "#6B7280",
+                        }}
+                      >
+                        {stat.emotion}
+                      </motion.span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-lg font-bold text-white">
+                        {stat.count}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-lg font-bold text-indigo-400">
+                        {stat.percentage}%
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="w-48">
+                        <motion.div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                          <motion.div
+                            initial={{ width: "0%" }}
+                            animate={{ width: `${stat.percentage}%` }}
+                            transition={{
+                              delay: 0.5 + index * 0.05,
+                              duration: 1,
+                            }}
+                            className="h-2 rounded-full transition-all"
+                            style={{
+                              background: `linear-gradient(90deg, ${
+                                {
+                                  joy: "#FBBF24",
+                                  sadness: "#3B82F6",
+                                  anger: "#EF4444",
+                                  fear: "#A855F7",
+                                  surprise: "#F97316",
+                                  disgust: "#10B981",
+                                  neutral: "#6B7280",
+                                }[stat.emotion] || "#6B7280"
+                              }, ${
+                                {
+                                  joy: "#FBBF24",
+                                  sadness: "#3B82F6",
+                                  anger: "#EF4444",
+                                  fear: "#A855F7",
+                                  surprise: "#F97316",
+                                  disgust: "#10B981",
+                                  neutral: "#6B7280",
+                                }[stat.emotion] || "#6B7280"
+                              })`,
+                            }}
+                          />
+                        </motion.div>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
       </div>
     </main>
   );

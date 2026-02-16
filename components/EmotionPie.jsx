@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
   PieChart,
   Pie,
@@ -34,13 +35,17 @@ const CustomTooltip = ({ active, payload }) => {
     const total = data.total || 1;
     const percentage = ((data.value / total) * 100).toFixed(1);
     return (
-      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white/95 backdrop-blur p-4 rounded-lg shadow-lg border border-slate-200"
+      >
         <p className="font-semibold text-gray-900">{data.name}</p>
         <p className="text-sm text-gray-700">Count: {data.value}</p>
         <p className="text-sm font-medium text-indigo-600">
           Percentage: {percentage}%
         </p>
-      </div>
+      </motion.div>
     );
   }
   return null;
@@ -66,45 +71,58 @@ export default function EmotionPie({ emotionData = {} }) {
 
   if (total === 0 || data.every((d) => d.value === 0)) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 text-gray-500">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center h-96 text-slate-400"
+      >
         <p className="text-lg font-medium">No emotion data available</p>
         <p className="text-sm mt-1">Analyze comments to see results</p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={({ name, percent }) =>
-            `${name} ${(percent * 100).toFixed(0)}%`
-          }
-          outerRadius={120}
-          innerRadius={50}
-          fill="#8884d8"
-          dataKey="value"
-          animationBegin={0}
-          animationDuration={800}
-        >
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={EMOTION_CONFIG[entry.emotion]?.color || "#6B7280"}
-            />
-          ))}
-        </Pie>
-        <Tooltip content={<CustomTooltip />} />
-        <Legend
-          verticalAlign="bottom"
-          height={36}
-          wrapperStyle={{ paddingTop: "20px" }}
-        />
-      </PieChart>
-    </ResponsiveContainer>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <ResponsiveContainer width="100%" height={400}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, percent }) =>
+              `${name} ${(percent * 100).toFixed(0)}%`
+            }
+            outerRadius={120}
+            innerRadius={50}
+            fill="#8884d8"
+            dataKey="value"
+            animationBegin={0}
+            animationDuration={1000}
+            animationEasing="ease-out"
+          >
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={EMOTION_CONFIG[entry.emotion]?.color || "#6B7280"}
+              />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+          <Legend
+            verticalAlign="bottom"
+            height={36}
+            wrapperStyle={{
+              paddingTop: "20px",
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </motion.div>
   );
 }
