@@ -185,7 +185,7 @@ export default function Home() {
                 <h1 className="text-5xl md:text-6xl font-black text-white leading-tight">
                   Understand Your{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
-                    Audience Emotions
+                    Audience Sentiment
                   </span>
                 </h1>
                 <p className="text-xl text-gray-400 leading-relaxed max-w-xl">
@@ -203,10 +203,11 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">
-                      Real-time Emotion Detection
+                      Real-time Sentiment Detection
                     </h3>
                     <p className="text-gray-500 text-sm">
-                      Instantly classify 7 different emotions from comments
+                      Instantly classify 7 different sentiment types from
+                      comments
                     </p>
                   </div>
                 </div>
@@ -234,7 +235,7 @@ export default function Home() {
                       PDF Export & Reporting
                     </h3>
                     <p className="text-gray-500 text-sm">
-                      Download detailed reports of your emotion analysis
+                      Download detailed reports of your sentiment analysis
                     </p>
                   </div>
                 </div>
@@ -321,7 +322,9 @@ export default function Home() {
                           <div className="text-2xl font-bold text-cyan-400">
                             7
                           </div>
-                          <div className="text-xs text-gray-500">Emotions</div>
+                          <div className="text-xs text-gray-500">
+                            Sentiment Types
+                          </div>
                         </div>
                         <div className="space-y-1">
                           <div className="text-2xl font-bold text-fuchsia-400">
@@ -422,18 +425,18 @@ export default function Home() {
                 Feature 01
               </div>
               <h2 className="text-4xl md:text-5xl font-bold text-white">
-                AI-Powered Emotion Detection
+                AI-Powered Sentiment Detection
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed">
                 Leverage advanced machine learning models to automatically
-                detect and classify emotions from YouTube comments. Our system
-                identifies 7 distinct emotions: joy, sadness, anger, fear,
+                detect and classify sentiment from YouTube comments. Our system
+                identifies 7 distinct sentiments: joy, sadness, anger, fear,
                 surprise, disgust, and neutral sentiment.
               </p>
               <ul className="space-y-3 text-gray-400">
                 <li className="flex items-center gap-3">
                   <span className="w-2 h-2 bg-cyan-400 rounded-full"></span>
-                  Real-time emotion classification
+                  Real-time sentiment classification
                 </li>
                 <li className="flex items-center gap-3">
                   <span className="w-2 h-2 bg-cyan-400 rounded-full"></span>
@@ -539,7 +542,7 @@ export default function Home() {
                         5%
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        Mixed Emotions
+                        Mixed Sentiments
                       </div>
                     </div>
                   </div>
@@ -559,15 +562,15 @@ export default function Home() {
                 Interactive Charts & Analytics
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed">
-                Visualize your emotion data with beautiful, interactive charts.
-                Get instant insights into audience sentiment distribution with
-                pie charts, bar graphs, and detailed statistics for each emotion
-                category.
+                Visualize your sentiment data with beautiful, interactive
+                charts. Get instant insights into audience sentiment
+                distribution with pie charts, bar graphs, and detailed
+                statistics for each sentiment category.
               </p>
               <ul className="space-y-3 text-gray-400">
                 <li className="flex items-center gap-3">
                   <span className="w-2 h-2 bg-cyan-400 rounded-full"></span>
-                  Pie charts for emotion distribution
+                  Pie charts for sentiment distribution
                 </li>
                 <li className="flex items-center gap-3">
                   <span className="w-2 h-2 bg-cyan-400 rounded-full"></span>
@@ -683,7 +686,7 @@ export default function Home() {
             </h2>
             <p className="text-gray-400 text-lg mb-12 max-w-2xl mx-auto">
               Join thousands of content creators who are using YT Sentiment to
-              understand their audience emotions and optimize their content
+              understand their audience sentiment and optimize their content
               strategy.
             </p>
             <motion.button
@@ -819,7 +822,7 @@ export default function Home() {
                       Your Uploaded Videos
                     </h2>
                     <p className="text-slate-400 text-sm font-medium">
-                      Select a video to analyze audience sentiment and emotions
+                      Select a video to analyze audience sentiment
                     </p>
                   </div>
                   <motion.span
@@ -1004,7 +1007,7 @@ export default function Home() {
                         Analyzing Comments...
                       </span>
                     ) : (
-                      "🚀 Analyze Emotions"
+                      "🚀 Analyze Sentiment"
                     )}
                   </motion.button>
                 </div>
@@ -1048,7 +1051,7 @@ export default function Home() {
                       >
                         <div className="relative space-y-2">
                           <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">
-                            Positive Emotions
+                            Positive Sentiment
                           </p>
                           <p className="text-3xl font-black text-green-300">
                             {emotionResults.positive}%
@@ -1067,7 +1070,7 @@ export default function Home() {
                       >
                         <div className="relative space-y-2">
                           <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">
-                            Negative Emotions
+                            Negative Sentiment
                           </p>
                           <p className="text-3xl font-black text-red-300">
                             {emotionResults.negative}%

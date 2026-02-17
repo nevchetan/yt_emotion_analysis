@@ -172,7 +172,7 @@ export default function DashboardClient({ videoId }) {
       exportContainer.innerHTML = `
         <div style="border-bottom: 3px solid #4f46e5; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <div style="font-size: 22px; font-weight: 700; color: #111827;">Emotion Analysis Report</div>
+            <div style="font-size: 22px; font-weight: 700; color: #111827;">Sentiment Analysis Report</div>
             <div style="font-size: 14px; color: #374151; margin-top: 4px;">Video: ${videoTitle || "Unknown"}</div>
           </div>
           <div style="font-size: 12px; color: #4b5563;">Generated on ${new Date().toLocaleString()}</div>
@@ -184,18 +184,18 @@ export default function DashboardClient({ videoId }) {
             <div style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 4px;">${total}</div>
           </div>
           <div style="border: 1px solid #e5e7eb; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 12px; background: #fffbeb;">
-            <div style="font-size: 12px; color: #4b5563;">Unique Emotions</div>
+            <div style="font-size: 12px; color: #4b5563;">Unique Sentiments</div>
             <div style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 4px;">${Object.keys(colorMap).length}</div>
           </div>
           <div style="border: 1px solid #e5e7eb; border-left: 4px solid #10b981; border-radius: 8px; padding: 12px; background: #ecfdf3;">
-            <div style="font-size: 12px; color: #4b5563;">Top Emotion</div>
+            <div style="font-size: 12px; color: #4b5563;">Top Sentiment</div>
             <div style="font-size: 20px; font-weight: 700; color: #111827; margin-top: 4px;">${stats[0]?.emotion || "N/A"}</div>
             ${stats[0] ? `<div style="font-size: 12px; color: #4b5563;">${stats[0].count} comments (${stats[0].percentage}%)</div>` : ""}
           </div>
         </div>
 
         <div style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
-          <div style="font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #111827;">Emotion Breakdown</div>
+          <div style="font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #111827;">Sentiment Breakdown</div>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             ${stats
               .map((stat) => {
@@ -242,7 +242,7 @@ export default function DashboardClient({ videoId }) {
 
       const safeTitle =
         videoTitle.replace(/[^\/\w\s-]/g, "").substring(0, 100) ||
-        `emotion-analysis-${videoId}`;
+        `sentiment-analysis-${videoId}`;
 
       doc.save(`${safeTitle}.pdf`);
 
@@ -268,7 +268,7 @@ export default function DashboardClient({ videoId }) {
         // Title
         doc.setFontSize(20);
         doc.setTextColor(79, 70, 229);
-        doc.text("Emotion Analysis Report", margin, yPosition);
+        doc.text("Sentiment Analysis Report", margin, yPosition);
         yPosition += 15;
 
         // Video title
@@ -298,7 +298,7 @@ export default function DashboardClient({ videoId }) {
         });
 
         doc.save(
-          `${videoTitle.replace(/[^\/\w\s-]/g, "").substring(0, 100) || `emotion-analysis-${videoId}`}.pdf`,
+          `${videoTitle.replace(/[^\/\w\s-]/g, "").substring(0, 100) || `sentiment-analysis-${videoId}`}.pdf`,
         );
       } catch (fallbackErr) {
         console.error("PDF generation failed:", fallbackErr);
@@ -569,7 +569,7 @@ export default function DashboardClient({ videoId }) {
               transition={{ delay: 0.2 }}
               className="text-4xl md:text-5xl font-black mb-3 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
             >
-              Emotion Analysis Dashboard
+              Sentiment Analysis Dashboard
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
@@ -606,7 +606,7 @@ export default function DashboardClient({ videoId }) {
             },
             {
               icon: Zap,
-              label: "Top Emotion",
+              label: "Top Sentiment",
               value:
                 topEmotion?.emotion.charAt(0).toUpperCase() +
                 topEmotion?.emotion.slice(1),
@@ -615,7 +615,7 @@ export default function DashboardClient({ videoId }) {
             },
             {
               icon: PieChartIcon,
-              label: "Emotion Types",
+              label: "Sentiment Types",
               value: Object.keys(emotionCounts).length,
               gradient: "from-purple-600 to-pink-600",
               delay: 0.3,

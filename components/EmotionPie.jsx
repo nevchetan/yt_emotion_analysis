@@ -76,7 +76,7 @@ export default function EmotionPie({ emotionData = {} }) {
         animate={{ opacity: 1 }}
         className="flex flex-col items-center justify-center h-96 text-slate-400"
       >
-        <p className="text-lg font-medium">No emotion data available</p>
+        <p className="text-lg font-medium">No sentiment data available</p>
         <p className="text-sm mt-1">Analyze comments to see results</p>
       </motion.div>
     );

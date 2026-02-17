@@ -151,9 +151,9 @@ export async function GET(request) {
     } catch (error) {
       return new Response(
         JSON.stringify({
-          error: "Emotion Analysis Failed",
+          error: "Sentiment Analysis Failed",
           message:
-            "Could not analyze comment emotions. Ensure the local Python server is running or HUGGINGFACE_API_KEY is set.",
+            "Could not analyze comment sentiment. Ensure the local Python server is running or HUGGINGFACE_API_KEY is set.",
           details: error.message,
         }),
         {

@@ -432,7 +432,7 @@ export default function AnalysisPageClient({ videoId }) {
             >
               <TrendingUp size={20} className="text-white" />
             </motion.div>
-            Emotion Distribution
+            Sentiment Distribution
           </h2>
           <motion.div
             initial={{ opacity: 0 }}
